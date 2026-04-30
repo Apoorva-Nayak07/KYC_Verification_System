@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecureBank — KYC Verification Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+/* ─── Design Tokens ─────────────────────────────────────────────────── */
+:root {
+  --navy: #0a1628;
+  --navy-mid: #112240;
+  --navy-soft: #1a3a5c;
+  --gold: #c9a84c;
+  --gold-light: #e8c96d;
+  --gold-pale: #f5e6b8;
+  --cream: #faf8f3;
+  --white: #ffffff;
+  --green: #2ecc71;
+  --green-dark: #1a9e53;
+  --red: #e74c3c;
+  --red-dark: #b03428;
+  --amber: #f39c12;
+  --text-primary: #0a1628;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
+  --border: rgba(10,22,40,0.12);
+  --border-gold: rgba(201,168,76,0.35);
+  --shadow-sm: 0 2px 8px rgba(10,22,40,0.08);
+  --shadow-md: 0 8px 30px rgba(10,22,40,0.12);
+  --shadow-lg: 0 20px 60px rgba(10,22,40,0.18);
+  --radius: 12px;
+  --radius-lg: 20px;
+}
+
+/* ─── Reset & Base ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── Header ────────────────────────────────────────────────────────── */
+header {
+  background: var(--navy);
+  padding: 0 40px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+}
+
+.logo-text {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--white);
+  letter-spacing: -0.3px;
+}
+.logo-text span { color: var(--gold); }
+
+.header-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 30px;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: var(--gold-pale);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.badge-dot {
+  width: 8px; height: 8px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+/* ─── Hero ──────────────────────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-mid) 60%, #162e4d 100%);
+  padding: 60px 40px 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 120%, rgba(201,168,76,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-label {
+  display: inline-block;
+  background: rgba(201,168,76,0.15);
+  border: 1px solid var(--border-gold);
+  border-radius: 30px;
+  padding: 6px 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(32px, 5vw, 52px);
+  color: var(--white);
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+}
+.hero h1 em { color: var(--gold); font-style: italic; }
+
+.hero p {
+  font-size: 16px;
+  color: rgba(255,255,255,0.6);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ─── Progress Steps ────────────────────────────────────────────────── */
+.steps-container {
+  background: var(--navy-mid);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 20px 40px;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.step {
+  display: flex; align-items: center; gap: 10px;
+  flex: 1;
+  position: relative;
+}
+
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 2px;
+  background: rgba(255,255,255,0.15);
+  z-index: 0;
+}
+
+.step.active:not(:last-child)::after,
+.step.done:not(:last-child)::after {
+  background: var(--gold);
+}
+
+.step-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 2px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+.step.active .step-num {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--navy);
+}
+
+.step.done .step-num {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+.step-label {
+  font-size: 12px; font-weight: 500;
+  color: rgba(255,255,255,0.35);
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+
+.step.active .step-label { color: var(--gold); }
+.step.done .step-label { color: rgba(255,255,255,0.6); }
+
+/* ─── Main Content ──────────────────────────────────────────────────── */
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* ─── Form Card ─────────────────────────────────────────────────────── */
+.form-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.section-header {
+  background: linear-gradient(135deg, var(--navy), var(--navy-soft));
+  padding: 20px 32px;
+  display: flex; align-items: center; gap: 14px;
+}
+
+.section-icon {
+  width: 40px; height: 40px;
+  background: rgba(201,168,76,0.2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+
+.section-header h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--white);
+  font-weight: 400;
+}
+
+.section-header p {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  margin-top: 2px;
+}
+
+.form-body {
+  padding: 32px;
+}
+
+/* ─── Form Groups ───────────────────────────────────────────────────── */
+.form-section {
+  margin-bottom: 32px;
+}
+
+.form-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-gold);
+  display: flex; align-items: center; gap: 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+.form-grid.full { grid-template-columns: 1fr; }
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group.span-2 { grid-column: span 2; }
+
+label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+}
+
+label .required { color: var(--red); margin-left: 2px; }
+
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap .icon {
+  position: absolute;
+  left: 14px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 11px 14px 11px 42px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-primary);
+  background: var(--cream);
+  transition: all 0.2s;
+  outline: none;
+  appearance: none;
+}
+
+select { padding-left: 42px; cursor: pointer; }
+
+textarea {
+  padding: 12px 14px 12px 42px;
+  resize: vertical;
+  min-height: 80px;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--navy-soft);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(26,58,92,0.1);
+}
+
+input.valid { border-color: var(--green); }
+input.invalid { border-color: var(--red); }
+
+.field-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.field-error {
+  font-size: 11px;
+  color: var(--red);
+  display: none;
+}
+
+.field-error.show { display: block; }
+
+/* ─── Validation Indicator ──────────────────────────────────────────── */
+.valid-icon {
+  position: absolute;
+  right: 12px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+input.valid + .valid-icon { opacity: 1; }
+
+/* ─── Submit Button ─────────────────────────────────────────────────── */
+.btn-submit {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--navy), var(--navy-soft));
+  color: var(--white);
+  border: none;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+  letter-spacing: 0.3px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-top: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-submit::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--gold) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.btn-submit:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.btn-submit:hover::before { opacity: 0.15; }
+.btn-submit:active { transform: translateY(0); }
+
+.btn-reset {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+
+.btn-reset:hover { border-color: var(--navy); color: var(--navy); }
+
+/* ─── Result Panel ──────────────────────────────────────────────────── */
+/* placeholder - result panel styles moved above responsive block */
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-card {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+}
+
+.result-header {
+  padding: 28px 32px;
+  display: flex; align-items: center; gap: 20px;
+}
+
+.result-header.success { background: linear-gradient(135deg, #0d7a45, #1a9e53); }
+.result-header.failed { background: linear-gradient(135deg, #7a0d0d, #b03428); }
+
+.result-icon-big {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.result-header-text h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.result-header-text p { font-size: 14px; color: rgba(255,255,255,0.75); }
+
+/* ─── Result Tabs ───────────────────────────────────────────────────── */
+.result-tabs {
+  display: flex;
+  background: var(--navy);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 14px;
+  background: none;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.result-body { background: var(--white); }
+
+/* ─── Checks Grid ───────────────────────────────────────────────────── */
+.checks-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 24px;
+}
+
+.check-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--cream);
+  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  transition: transform 0.2s;
+}
+
+.check-item:hover { transform: translateY(-2px); }
+
+.check-status {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.check-item.pass .check-status {
+  background: rgba(46,204,113,0.15);
+  color: var(--green-dark);
+}
+
+.check-item.fail .check-status {
+  background: rgba(231,76,60,0.12);
+  color: var(--red-dark);
+}
+
+.check-info { flex: 1; min-width: 0; }
+
+.check-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+.check-message {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.check-item.fail .check-message { color: var(--red); }
+
+/* ─── Account Card ──────────────────────────────────────────────────── */
+.account-info {
+  padding: 24px;
+}
+
+.account-card {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-soft) 100%);
+  border-radius: 16px;
+  padding: 28px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.account-card::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.12);
+}
+
+.account-card::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: 40px;
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: rgba(201,168,76,0.07);
+}
+
+.account-bank {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+
+.account-number {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: white;
+  margin-bottom: 6px;
+}
+
+.account-type {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 24px;
+}
+
+.account-details-row {
+  display: flex; justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 16px;
+}
+
+.account-detail-item label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.account-detail-item span {
+  font-size: 13px;
+  color: var(--gold-pale);
+  font-weight: 500;
+}
+
+.customer-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.meta-item {
+  background: var(--cream);
+  border-radius: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+}
+
+.meta-item label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.meta-item span {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ─── Progress Bar ──────────────────────────────────────────────────── */
+.score-section {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--cream);
+}
+
+.score-label {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+
+.score-label span:first-child { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+.score-label span:last-child { font-size: 20px; font-weight: 700; color: var(--navy); }
+
+.progress-bar {
+  height: 10px;
+  background: rgba(10,22,40,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 1s ease;
+  background: linear-gradient(90deg, var(--green-dark), var(--green));
+}
+
+.progress-fill.low { background: linear-gradient(90deg, var(--red-dark), var(--red)); }
+.progress-fill.mid { background: linear-gradient(90deg, #c07a00, var(--amber)); }
+
+/* ─── Status Badge ──────────────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px;
+  border-radius: 30px;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.verified {
+  background: rgba(46,204,113,0.12);
+  color: var(--green-dark);
+  border: 1px solid rgba(46,204,113,0.3);
+}
+
+.status-badge.rejected {
+  background: rgba(231,76,60,0.1);
+  color: var(--red-dark);
+  border: 1px solid rgba(231,76,60,0.25);
+}
+
+/* ─── Rejection Reasons ─────────────────────────────────────────────── */
+.rejection-list {
+  padding: 24px;
+}
+
+.rejection-list h3 {
+  font-size: 14px; font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.rejection-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px;
+  background: rgba(231,76,60,0.05);
+  border: 1px solid rgba(231,76,60,0.15);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.rejection-item .ri { font-size: 15px; }
+.rejection-item p { font-size: 13px; color: var(--red-dark); line-height: 1.4; }
+.rejection-item strong { display: block; font-size: 12px; color: var(--red); margin-bottom: 2px; }
+
+/* ─── Loading Spinner ───────────────────────────────────────────────── */
+#loading-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(10,22,40,0.55);
+  z-index: 1000;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 20px;
+  backdrop-filter: blur(4px);
+}
+
+#loading-overlay.show { display: flex; }
+
+.spinner {
+  width: 56px; height: 56px;
+  border: 4px solid rgba(255,255,255,0.15);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#loading-overlay p {
+  font-size: 14px; color: white; font-weight: 500; letter-spacing: 0.5px;
+}
+
+/* ─── Result Panel hidden by default ───────────────────────────────── */
+#result-panel { display: none; margin-top: 32px; animation: slideUp 0.4s ease; }
+#result-panel.show { display: block; }
+
+/* ─── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 680px) {
+  header { padding: 0 20px; }
+  .hero { padding: 40px 20px 60px; }
+  .main { padding: 24px 16px 60px; }
+  .form-body { padding: 20px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid.three { grid-template-columns: 1fr; }
+  .form-group.span-2 { grid-column: span 1; }
+  .checks-grid { grid-template-columns: 1fr; }
+  .customer-meta { grid-template-columns: 1fr; }
+  .steps { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay">
+  <div class="spinner"></div>
+  <p>Verifying KYC Details…</p>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🏛️</div>
+    <div class="logo-text">Secure<span>Bank</span></div>
+  </div>
+  <div class="header-badge">
+    <div class="badge-dot"></div>
+    KYC Portal Active
+  </div>
+</header>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-label">🔐 Know Your Customer</div>
+  <h1>Open Your Account <br><em>Securely & Swiftly</em></h1>
+  <p>Complete the KYC verification process to open your bank account. All your details are encrypted and verified in real-time.</p>
+</div>
+
+<!-- Progress Steps -->
+<div class="steps-container">
+  <div class="steps">
+    <div class="step active" id="step-1">
+      <div class="step-num">1</div>
+      <div class="step-label">Personal Info</div>
+    </div>
+    <div class="step" id="step-2">
+      <div class="step-num">2</div>
+      <div class="step-label">Identity Proof</div>
+    </div>
+    <div class="step" id="step-3">
+      <div class="step-num">3</div>
+      <div class="step-label">Address</div>
+    </div>
+    <div class="step" id="step-4">
+      <div class="step-num">4</div>
+      <div class="step-label">Contact & Finance</div>
+    </div>
+    <div class="step" id="step-5">
+      <div class="step-num">5</div>
+      <div class="step-label">Verification</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- KYC Form Card -->
+  <div class="form-card">
+    <div class="section-header">
+      <div class="section-icon">📋</div>
+      <div>
+        <h2>KYC Verification Form</h2>
+        <p>Fill in all fields accurately — details will be verified against government records</p>
+      </div>
+    </div>
+
+    <div class="form-body">
+      <form id="kyc-form" novalidate>
+
+        <!-- PERSONAL INFORMATION -->
+        <div class="form-section">
+          <div class="form-section-title">👤 Personal Information</div>
+          <div class="form-grid">
+            <div class="form-group span-2">
+              <label>Full Name <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">✍️</span>
+                <input type="text" id="fullName" name="fullName" placeholder="e.g. Rahul Kumar Sharma" autocomplete="name">
+              </div>
+              <span class="field-hint">Enter your full legal name as on government ID (First + Last name required)</span>
+              <span class="field-error" id="err-fullName"></span>
+            </div>
+
+            <div class="form-group">
+              <label>Date of Birth <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">🗓️</span>
+                <input type="date" id="dateOfBirth" name="dateOfBirth">
+              </div>
+              <span class="field-error" id="err-dateOfBirth"></span>
+            </div>
+
+            <div class="form-group">
+              <label>Gender <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">⚧</span>
+                <select id="gender" name="gender">
+                  <option value="">Select gender</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Other</option>
+                  <option>Prefer not to say</option>
+                </select>
+              </div>
+              <span class="field-error" id="err-gender"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- IDENTITY PROOF -->
+        <div class="form-section">
+          <div class="form-section-title">🪪 Identity Proof</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>ID Proof Type <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">📄</span>
+                <select id="idProofType" name="idProofType" onchange="updateIdHint()">
+                  <option value="">Select ID type</option>
+                  <option value="AADHAAR">Aadhaar Card</option>
+                  <option value="PAN">PAN Card</option>
+                  <option value="PASSPORT">Passport</option>
+                  <option value="VOTER_ID">Voter ID</option>
+                  <option value="DRIVING_LICENSE">Driving License</option>
+                </select>
+              </div>
+              <span class="field-error" id="err-idProofType"></span>
+            </div>
+
+            <div class="form-group">
+              <label>ID Proof Number <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">🔢</span>
+                <input type="text" id="idProofNumber" name="idProofNumber" placeholder="Enter your ID number" style="text-transform:uppercase">
+              </div>
+              <span class="field-hint" id="id-hint">Select an ID type first</span>
+              <span class="field-error" id="err-idProofNumber"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADDRESS -->
+        <div class="form-section">
+          <div class="form-section-title">🏠 Address Details</div>
+          <div class="form-grid full">
+            <div class="form-group">
+              <label>Street Address <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">📍</span>
+                <textarea id="address" name="address" placeholder="House/Flat No., Building, Street, Area..." rows="2"></textarea>
+              </div>
+              <span class="field-error" id="err-address"></span>
+            </div>
+          </div>
+          <div class="form-grid three" style="margin-top:16px">
+            <div class="form-group">
+              <label>City <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">🏙️</span>
+                <input type="text" id="city" name="city" placeholder="e.g. Bengaluru">
+              </div>
+              <span class="field-error" id="err-city"></span>
+            </div>
+            <div class="form-group">
+              <label>State <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">🗺️</span>
+                <select id="state" name="state">
+                  <option value="">Select state</option>
+                  <option>Andhra Pradesh</option><option>Arunachal Pradesh</option>
+                  <option>Assam</option><option>Bihar</option><option>Chhattisgarh</option>
+                  <option>Goa</option><option>Gujarat</option><option>Haryana</option>
+                  <option>Himachal Pradesh</option><option>Jharkhand</option>
+                  <option>Karnataka</option><option>Kerala</option>
+                  <option>Madhya Pradesh</option><option>Maharashtra</option>
+                  <option>Manipur</option><option>Meghalaya</option><option>Mizoram</option>
+                  <option>Nagaland</option><option>Odisha</option><option>Punjab</option>
+                  <option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option>
+                  <option>Telangana</option><option>Tripura</option>
+                  <option>Uttar Pradesh</option><option>Uttarakhand</option>
+                  <option>West Bengal</option><option>Delhi</option>
+                  <option>Jammu & Kashmir</option><option>Ladakh</option>
+                  <option>Chandigarh</option><option>Puducherry</option>
+                </select>
+              </div>
+              <span class="field-error" id="err-state"></span>
+            </div>
+            <div class="form-group">
+              <label>PIN Code <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">📮</span>
+                <input type="text" id="pinCode" name="pinCode" placeholder="e.g. 560001" maxlength="6">
+              </div>
+              <span class="field-error" id="err-pinCode"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTACT & FINANCIAL -->
+        <div class="form-section">
+          <div class="form-section-title">📱 Contact & Financial Details</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Mobile Number <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">📞</span>
+                <input type="tel" id="mobileNumber" name="mobileNumber" placeholder="10-digit mobile number" maxlength="10">
+              </div>
+              <span class="field-hint">Indian number starting with 6-9</span>
+              <span class="field-error" id="err-mobileNumber"></span>
+            </div>
+
+            <div class="form-group">
+              <label>Email Address <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">✉️</span>
+                <input type="email" id="email" name="email" placeholder="you@example.com">
+              </div>
+              <span class="field-error" id="err-email"></span>
+            </div>
+
+            <div class="form-group">
+              <label>Occupation <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">💼</span>
+                <select id="occupation" name="occupation">
+                  <option value="">Select occupation</option>
+                  <option>Salaried Employee</option>
+                  <option>Self-Employed</option>
+                  <option>Business Owner</option>
+                  <option>Government Employee</option>
+                  <option>Professional (Doctor/Lawyer/CA)</option>
+                  <option>Student</option>
+                  <option>Homemaker</option>
+                  <option>Retired</option>
+                  <option>Freelancer</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <span class="field-error" id="err-occupation"></span>
+            </div>
+
+            <div class="form-group">
+              <label>Annual Income (₹) <span class="required">*</span></label>
+              <div class="input-wrap">
+                <span class="icon">💰</span>
+                <input type="number" id="annualIncome" name="annualIncome" placeholder="e.g. 500000" min="0">
+              </div>
+              <span class="field-hint">Enter 0 if no income (student/homemaker)</span>
+              <span class="field-error" id="err-annualIncome"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <button type="submit" class="btn-submit">
+          🔍 Submit KYC Verification
+        </button>
+        <button type="button" class="btn-reset" onclick="resetForm()">
+          ↩ Reset Form
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Result Panel -->
+  <div id="result-panel">
+    <div class="result-card">
+      <div id="result-header" class="result-header"></div>
+
+      <div class="result-tabs" id="result-tab-bar">
+        <button class="tab-btn active" data-tab="checks">🔍 Verification Checks</button>
+        <button class="tab-btn" data-tab="account">🏦 Account Details</button>
+        <button class="tab-btn" data-tab="summary">📊 Summary</button>
+      </div>
+
+      <div class="result-body">
+        <!-- Score -->
+        <div class="score-section">
+          <div class="score-label">
+            <span>KYC Score</span>
+            <span id="score-text"></span>
+          </div>
+          <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Checks Tab -->
+        <div id="tab-checks" class="tab-content active">
+          <div class="checks-grid" id="checks-grid"></div>
+        </div>
+
+        <!-- Account Tab -->
+        <div id="tab-account-content" class="tab-content">
+          <div class="account-info" id="account-info"></div>
+        </div>
+
+        <!-- Summary Tab -->
+        <div id="tab-summary" class="tab-content">
+          <div style="padding:24px" id="summary-content"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* ─────────────────────────────────────────────────────────────────────
+   KYC BANKING SYSTEM — JAVASCRIPT ENGINE
+   Complete validation mirroring the Java backend logic
+───────────────────────────────────────────────────────────────────── */
+
+// ─── Validation Patterns ─────────────────────────────────────────────
+const PATTERNS = {
+  NAME:             /^[A-Za-z]+(\s[A-Za-z]+){1,4}$/,
+  MOBILE:           /^[6-9]\d{9}$/,
+  EMAIL:            /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/,
+  PINCODE:          /^[1-9][0-9]{5}$/,
+  AADHAAR:          /^[2-9]\d{11}$/,
+  PAN:              /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
+  PASSPORT:         /^[A-Z]{1}[0-9]{7}$/,
+  VOTER_ID:         /^[A-Z]{3}[0-9]{7}$/,
+  DRIVING_LICENSE:  /^[A-Z]{2}[0-9]{2}\s?[0-9]{4}[0-9]{7}$/
+};
+
+// ─── ID Hints ────────────────────────────────────────────────────────
+const ID_HINTS = {
+  AADHAAR:         '12 digits, starting with 2-9 (e.g. 234567890123)',
+  PAN:             'Format: AAAAA9999A — 5 letters, 4 digits, 1 letter (e.g. ABCDE1234F)',
+  PASSPORT:        'Format: A1234567 — 1 letter + 7 digits',
+  VOTER_ID:        'Format: ABC1234567 — 3 letters + 7 digits',
+  DRIVING_LICENSE: 'Format: KA0120249999999 — State code + digits'
+};
+
+function updateIdHint() {
+  const type = document.getElementById('idProofType').value;
+  document.getElementById('id-hint').textContent = ID_HINTS[type] || 'Select an ID type first';
+  document.getElementById('idProofNumber').value = '';
+}
+
+// ─── ID Generator ────────────────────────────────────────────────────
+function generateCustomerId() {
+  const d = new Date();
+  const date = d.getFullYear().toString() +
+    String(d.getMonth()+1).padStart(2,'0') +
+    String(d.getDate()).padStart(2,'0');
+  const rand = Math.random().toString(36).substring(2,8).toUpperCase();
+  return `CUST-${date}-${rand}`;
+}
+
+function generateAccountNumber() {
+  let num = '12345678';
+  for (let i = 0; i < 8; i++) num += Math.floor(Math.random()*10);
+  return num;
+}
+
+// ─── Core Validation Engine ──────────────────────────────────────────
+function runKYCValidation(data) {
+  const checks = [];
+  let allPass = true;
+
+  function addCheck(field, display, passed, message) {
+    checks.push({ field, display, passed, message });
+    if (!passed) allPass = false;
+  }
+
+  // 1. Full Name
+  const name = (data.fullName || '').trim();
+  if (!name) {
+    addCheck('fullName', 'Full Name', false, 'Name is required');
+  } else if (name.length < 3) {
+    addCheck('fullName', 'Full Name', false, 'Name must be at least 3 characters');
+  } else if (!PATTERNS.NAME.test(name)) {
+    addCheck('fullName', 'Full Name', false, 'Must contain first & last name (letters only)');
+  } else {
+    addCheck('fullName', 'Full Name', true, `Valid name: ${name}`);
+  }
+
+  // 2. Date of Birth
+  const dob = data.dateOfBirth;
+  if (!dob) {
+    addCheck('dateOfBirth', 'Date of Birth', false, 'Date of birth is required');
+  } else {
+    const birth = new Date(dob);
+    const today = new Date();
+    const age = Math.floor((today - birth) / (365.25 * 24 * 3600 * 1000));
+    if (birth > today) {
+      addCheck('dateOfBirth', 'Date of Birth', false, 'Date of birth cannot be in the future');
+    } else if (age < 18) {
+      addCheck('dateOfBirth', 'Date of Birth', false, `Minimum age is 18 years. Current age: ${age}`);
+    } else if (age > 100) {
+      addCheck('dateOfBirth', 'Date of Birth', false, `Age ${age} exceeds maximum allowed (100 years)`);
+    } else {
+      addCheck('dateOfBirth', 'Date of Birth', true, `Valid. Age: ${age} years`);
+    }
+  }
+
+  // 3. Gender
+  if (!data.gender) {
+    addCheck('gender', 'Gender', false, 'Gender selection is required');
+  } else {
+    addCheck('gender', 'Gender', true, `Recorded: ${data.gender}`);
+  }
+
+  // 4. ID Proof
+  const idType = data.idProofType;
+  const idNum = (data.idProofNumber || '').trim().toUpperCase().replace(/\s+/g, '');
+  if (!idType) {
+    addCheck('idProofType', 'ID Proof Type', false, 'ID proof type is required');
+  } else if (!idNum) {
+    addCheck('idProofNumber', 'ID Proof Number', false, 'ID proof number is required');
+  } else {
+    let valid = false;
+    let msg = '';
+    const labels = { AADHAAR:'Aadhaar Card', PAN:'PAN Card', PASSPORT:'Passport',
+                     VOTER_ID:'Voter ID', DRIVING_LICENSE:'Driving License' };
+    switch (idType) {
+      case 'AADHAAR':
+        valid = PATTERNS.AADHAAR.test(idNum);
+        msg = valid ? `Valid Aadhaar: XXXX-XXXX-${idNum.slice(8)}`
+                    : 'Must be 12 digits, starting with 2-9';
+        break;
+      case 'PAN':
+        valid = PATTERNS.PAN.test(idNum);
+        msg = valid ? `Valid PAN: ${idNum}` : 'Format: AAAAA9999A';
+        break;
+      case 'PASSPORT':
+        valid = PATTERNS.PASSPORT.test(idNum);
+        msg = valid ? `Valid Passport: ${idNum}` : 'Format: A1234567';
+        break;
+      case 'VOTER_ID':
+        valid = PATTERNS.VOTER_ID.test(idNum);
+        msg = valid ? `Valid Voter ID: ${idNum}` : 'Format: ABC1234567';
+        break;
+      case 'DRIVING_LICENSE':
+        valid = PATTERNS.DRIVING_LICENSE.test(idNum);
+        msg = valid ? `Valid License: ${idNum}` : 'Format: KA0120249999999';
+        break;
+      default:
+        msg = 'Unknown ID type selected';
+    }
+    addCheck('idProofNumber', labels[idType] || 'ID Proof', valid, msg);
+  }
+
+  // 5. Address
+  const addr = (data.address || '').trim();
+  if (!addr) addCheck('address', 'Address', false, 'Address is required');
+  else if (addr.length < 10) addCheck('address', 'Address', false, 'Address too short (min 10 chars)');
+  else addCheck('address', 'Address', true, 'Valid address provided');
+
+  // 6. City
+  const city = (data.city || '').trim();
+  if (!city) addCheck('city', 'City', false, 'City is required');
+  else if (city.length < 2) addCheck('city', 'City', false, 'City name too short');
+  else addCheck('city', 'City', true, `Valid city: ${city}`);
+
+  // 7. State
+  if (!data.state) addCheck('state', 'State', false, 'State is required');
+  else addCheck('state', 'State', true, `Valid state: ${data.state}`);
+
+  // 8. PIN Code
+  const pin = (data.pinCode || '').trim();
+  if (!pin) addCheck('pinCode', 'PIN Code', false, 'PIN code is required');
+  else if (!PATTERNS.PINCODE.test(pin)) addCheck('pinCode', 'PIN Code', false, 'Invalid PIN (6 digits, non-zero start)');
+  else addCheck('pinCode', 'PIN Code', true, `Valid PIN: ${pin}`);
+
+  // 9. Mobile
+  const mob = (data.mobileNumber || '').trim().replace(/[\s\-+]/g, '');
+  const mobNum = mob.startsWith('91') && mob.length === 12 ? mob.slice(2) : mob;
+  if (!mobNum) addCheck('mobileNumber', 'Mobile Number', false, 'Mobile number is required');
+  else if (!PATTERNS.MOBILE.test(mobNum)) addCheck('mobileNumber', 'Mobile Number', false, '10 digits, starting with 6-9');
+  else addCheck('mobileNumber', 'Mobile Number', true, `Valid: +91-${mobNum.slice(0,5)}XXXXX`);
+
+  // 10. Email
+  const email = (data.email || '').trim();
+  if (!email) addCheck('email', 'Email Address', false, 'Email is required');
+  else if (!PATTERNS.EMAIL.test(email)) addCheck('email', 'Email Address', false, 'Invalid email format');
+  else addCheck('email', 'Email Address', true, `Valid: ${email}`);
+
+  // 11. Occupation
+  if (!data.occupation) addCheck('occupation', 'Occupation', false, 'Occupation is required');
+  else addCheck('occupation', 'Occupation', true, `Recorded: ${data.occupation}`);
+
+  // 12. Annual Income
+  const inc = parseFloat((data.annualIncome || '').toString().replace(/,/g, ''));
+  if (isNaN(inc)) addCheck('annualIncome', 'Annual Income', false, 'Must be a valid number');
+  else if (inc < 0) addCheck('annualIncome', 'Annual Income', false, 'Cannot be negative');
+  else addCheck('annualIncome', 'Annual Income', true, `₹${inc.toLocaleString('en-IN')}`);
+
+  return { passed: allPass, checks };
+}
+
+// ─── Form Submit ─────────────────────────────────────────────────────
+document.getElementById('kyc-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  clearAllErrors();
+
+  const data = {
+    fullName:      document.getElementById('fullName').value,
+    dateOfBirth:   document.getElementById('dateOfBirth').value,
+    gender:        document.getElementById('gender').value,
+    idProofType:   document.getElementById('idProofType').value,
+    idProofNumber: document.getElementById('idProofNumber').value,
+    address:       document.getElementById('address').value,
+    city:          document.getElementById('city').value,
+    state:         document.getElementById('state').value,
+    pinCode:       document.getElementById('pinCode').value,
+    mobileNumber:  document.getElementById('mobileNumber').value,
+    email:         document.getElementById('email').value,
+    occupation:    document.getElementById('occupation').value,
+    annualIncome:  document.getElementById('annualIncome').value,
+  };
+
+  // Show loading
+  document.getElementById('loading-overlay').classList.add('show');
+
+  // Simulate processing delay (mirrors Java backend processing)
+  setTimeout(() => {
+    const result = runKYCValidation(data);
+    document.getElementById('loading-overlay').classList.remove('show');
+    renderResult(result, data);
+    updateProgressSteps(result.passed);
+    document.getElementById('result-panel').classList.add('show');
+    document.getElementById('result-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 1800);
+});
+
+// ─── Render Result ───────────────────────────────────────────────────
+function renderResult(result, data) {
+  const passed = result.checks.filter(c => c.passed).length;
+  const total = result.checks.length;
+  const pct = Math.round((passed / total) * 100);
+  const customerId = generateCustomerId();
+  const accountNumber = result.passed ? generateAccountNumber() : null;
+  const now = new Date().toLocaleString('en-IN', {
+    day:'2-digit', month:'2-digit', year:'numeric',
+    hour:'2-digit', minute:'2-digit', second:'2-digit'
+  });
+
+  // Header
+  const header = document.getElementById('result-header');
+  if (result.passed) {
+    header.className = 'result-header success';
+    header.innerHTML = `
+      <div class="result-icon-big">✅</div>
+      <div class="result-header-text">
+        <h2>KYC Verified Successfully</h2>
+        <p>Account has been created. Welcome to SecureBank, ${data.fullName.split(' ')[0]}!</p>
+      </div>
+      <div style="margin-left:auto">
+        <div class="status-badge verified">✓ VERIFIED</div>
+      </div>`;
+  } else {
+    header.className = 'result-header failed';
+    header.innerHTML = `
+      <div class="result-icon-big">❌</div>
+      <div class="result-header-text">
+        <h2>KYC Verification Failed</h2>
+        <p>Please correct the errors below and resubmit your application.</p>
+      </div>
+      <div style="margin-left:auto">
+        <div class="status-badge rejected">✗ REJECTED</div>
+      </div>`;
+  }
+
+  // Score
+  document.getElementById('score-text').textContent = `${passed} / ${total} checks passed`;
+  const fill = document.getElementById('progress-fill');
+  fill.style.width = '0%';
+  setTimeout(() => {
+    fill.style.width = pct + '%';
+    fill.className = 'progress-fill ' + (pct >= 85 ? '' : pct >= 60 ? 'mid' : 'low');
+  }, 100);
+
+  // Checks
+  const grid = document.getElementById('checks-grid');
+  grid.innerHTML = result.checks.map(c => `
+    <div class="check-item ${c.passed ? 'pass' : 'fail'}">
+      <div class="check-status">${c.passed ? '✓' : '✗'}</div>
+      <div class="check-info">
+        <div class="check-name">${c.display}</div>
+        <div class="check-message">${c.message}</div>
+      </div>
+    </div>`).join('');
+
+  // Account Tab
+  const accountTab = document.querySelector('#result-tab-bar [data-tab="account"]');
+  const accountInfo = document.getElementById('account-info');
+  if (result.passed) {
+    accountTab.style.opacity = '1';
+    accountTab.disabled = false;
+    accountInfo.innerHTML = `
+      <div class="account-card">
+        <div class="account-bank">🏛️ SecureBank</div>
+        <div class="account-number">${formatAccountNumber(accountNumber)}</div>
+        <div class="account-type">Savings Account</div>
+        <div class="account-details-row">
+          <div class="account-detail-item"><label>IFSC Code</label><span>BNKY0001234</span></div>
+          <div class="account-detail-item"><label>Branch</label><span>Main Branch</span></div>
+          <div class="account-detail-item"><label>Status</label><span style="color:#2ecc71">● Active</span></div>
+          <div class="account-detail-item"><label>Balance</label><span>₹0.00</span></div>
+        </div>
+      </div>
+      <div class="customer-meta">
+        <div class="meta-item"><label>Customer ID</label><span>${customerId}</span></div>
+        <div class="meta-item"><label>Account Opened</label><span>${now}</span></div>
+        <div class="meta-item"><label>Customer Name</label><span>${data.fullName}</span></div>
+        <div class="meta-item"><label>KYC Status</label><span style="color:#1a9e53;font-weight:600">✓ Verified</span></div>
+        <div class="meta-item"><label>ID Type</label><span>${data.idProofType}</span></div>
+        <div class="meta-item"><label>Mobile</label><span>${data.mobileNumber}</span></div>
+      </div>`;
+  } else {
+    accountTab.style.opacity = '0.4';
+    accountInfo.innerHTML = `
+      <div style="padding:40px;text-align:center;color:var(--text-muted)">
+        <div style="font-size:48px;margin-bottom:12px">🚫</div>
+        <p style="font-size:15px;font-weight:500">Account creation blocked</p>
+        <p style="font-size:13px;margin-top:6px">KYC must be verified before an account can be opened.</p>
+      </div>
+      <div class="rejection-list">
+        <h3>Failed Verification Points:</h3>
+        ${result.checks.filter(c => !c.passed).map(c => `
+          <div class="rejection-item">
+            <span class="ri">⚠️</span>
+            <p><strong>${c.display}</strong>${c.message}</p>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  // Summary Tab
+  document.getElementById('summary-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px">
+      <div style="background:var(--cream);border-radius:12px;padding:20px;text-align:center;border:1px solid var(--border)">
+        <div style="font-size:32px;font-weight:700;color:var(--navy)">${total}</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;font-weight:500">Total Checks</div>
+      </div>
+      <div style="background:rgba(46,204,113,0.07);border-radius:12px;padding:20px;text-align:center;border:1px solid rgba(46,204,113,0.2)">
+        <div style="font-size:32px;font-weight:700;color:var(--green-dark)">${passed}</div>
+        <div style="font-size:12px;color:var(--green-dark);margin-top:4px;font-weight:500">Passed</div>
+      </div>
+      <div style="background:rgba(231,76,60,0.07);border-radius:12px;padding:20px;text-align:center;border:1px solid rgba(231,76,60,0.2)">
+        <div style="font-size:32px;font-weight:700;color:var(--red-dark)">${total-passed}</div>
+        <div style="font-size:12px;color:var(--red-dark);margin-top:4px;font-weight:500">Failed</div>
+      </div>
+    </div>
+    <div style="background:var(--cream);border:1px solid var(--border);border-radius:12px;padding:20px">
+      <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:12px">Verification Summary</div>
+      <p style="font-size:14px;color:var(--text-secondary);line-height:1.7">
+        ${result.passed
+          ? `✅ KYC verification has been completed successfully. All ${total} checks have passed. Customer <strong>${data.fullName}</strong> is now verified and a new Savings Account (${formatAccountNumber(accountNumber)}) has been created and activated. The customer may now proceed with banking operations.`
+          : `❌ KYC verification failed with ${passed} of ${total} checks passing (${pct}% score). The application for <strong>${data.fullName}</strong> has been rejected. Please correct the ${total-passed} failed check(s) and resubmit the KYC application.`}
+      </p>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:12px;font-size:12px;color:var(--text-muted)">
+        <span>Customer ID: <strong style="color:var(--navy)">${customerId}</strong></span>
+        <span>•</span>
+        <span>Processed: <strong style="color:var(--navy)">${now}</strong></span>
+        <span>•</span>
+        <span>Score: <strong style="color:var(--navy)">${pct}%</strong></span>
+      </div>
+    </div>`;
+}
+
+// ─── Tab Switching ───────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('#result-tab-bar .tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === name);
+  });
+  document.getElementById('tab-checks').classList.toggle('active', name === 'checks');
+  document.getElementById('tab-account-content').classList.toggle('active', name === 'account');
+  document.getElementById('tab-summary').classList.toggle('active', name === 'summary');
+}
+
+document.getElementById('result-tab-bar').addEventListener('click', function(e) {
+  const btn = e.target.closest('.tab-btn');
+  if (btn) showTab(btn.dataset.tab);
+});
+
+// ─── Progress Steps ──────────────────────────────────────────────────
+function updateProgressSteps(success) {
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`step-${i}`).className = 'step done';
+  }
+  const step5 = document.getElementById('step-5');
+  step5.className = 'step ' + (success ? 'done' : 'active');
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────
+function formatAccountNumber(num) {
+  if (!num) return '';
+  return num.replace(/(.{4})/g, '$1 ').trim();
+}
+
+function clearAllErrors() {
+  document.querySelectorAll('.field-error').forEach(el => {
+    el.textContent = '';
+    el.classList.remove('show');
+  });
+}
+
+function resetForm() {
+  document.getElementById('kyc-form').reset();
+  clearAllErrors();
+  document.getElementById('result-panel').classList.remove('show');
+  document.getElementById('id-hint').textContent = 'Select an ID type first';
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById(`step-${i}`).className = 'step' + (i === 1 ? ' active' : '');
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── Live Validation Hints ───────────────────────────────────────────
+document.getElementById('mobileNumber').addEventListener('input', function() {
+  const v = this.value.replace(/\D/g,'');
+  this.value = v;
+});
+
+document.getElementById('pinCode').addEventListener('input', function() {
+  this.value = this.value.replace(/\D/g,'').slice(0,6);
+});
+
+document.getElementById('annualIncome').addEventListener('input', function() {
+  if (parseFloat(this.value) < 0) this.value = '0';
+});
+
+document.getElementById('idProofNumber').addEventListener('input', function() {
+  this.value = this.value.toUpperCase();
+});
+</script>
+</body>
+</html>
